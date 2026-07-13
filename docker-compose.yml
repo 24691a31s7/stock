@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: alphaflow-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://alphaflow:alphaflow@postgres:5432/alphaflow
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=production
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    networks:
+      - alphaflow-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: alphaflow-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - alphaflow-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: alphaflow-postgres
+    environment:
+      - POSTGRES_USER=alphaflow
+      - POSTGRES_PASSWORD=alphaflow
+      - POSTGRES_DB=alphaflow
+    volumes:
+      - alphaflow-pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - alphaflow-net
+
+  frontend:
+    image: nginx:alpine
+    container_name: alphaflow-frontend
+    volumes:
+      - ./frontend/static:/usr/share/nginx/html:ro
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - alphaflow-net
+
+networks:
+  alphaflow-net:
+    driver: bridge
+
+volumes:
+  alphaflow-pgdata:
