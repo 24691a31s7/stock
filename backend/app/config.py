@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     fii_dii_api_key: str = ""
 
     # Weights used by the Feature Engineering + Prediction layer.
-    # Centralized so they can be tuned without touching agent code.
+    # Centralized so they can be tuned without touching agent cod.
     technical_weight: float = 0.30
     fundamental_weight: float = 0.25
     sentiment_weight: float = 0.20
